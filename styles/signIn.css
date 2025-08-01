@@ -1,0 +1,102 @@
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* background-color: #f9fafb; */
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .login-wrapper {
+      max-width: 1000px;
+      width: 100%;
+      /* background: white; */
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .left-section {
+      /* background: #f0f6ec; */
+      padding: 3rem;
+      width: 50%;
+    }
+
+    .right-section {
+      padding: 3rem;
+      width: 50%;
+      /* background-color: #ffffff; */
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1c3c2e;
+    }
+
+    .testimonial {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .testimonial img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
+    .btn-dark-green {
+      background-color: #1c3c2e;
+      color: white;
+      border: none;
+    }
+
+    .btn-dark-green:hover {
+      background-color: #162e24;
+    }
+
+    .form-control:focus {
+      border-color: #1c3c2e;
+      box-shadow: 0 0 0 0.2rem rgba(28, 60, 46, 0.25);
+    }
+
+    .form-divider {
+      text-align: center;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+
+    .form-divider::before,
+    .form-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background-color: #ddd;
+    }
+
+    .form-divider::before {
+      left: 0;
+    }
+
+    .form-divider::after {
+      right: 0;
+    }
+
+    .text-link {
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .login-wrapper {
+        flex-direction: column;
+      }
+      .left-section, .right-section {
+        width: 100%;
+      }
+    }
