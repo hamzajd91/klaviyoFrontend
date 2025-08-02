@@ -45,7 +45,7 @@ const Signup = () => {
     setLoading(true);
     try {
       // const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/signup`, {
-      const response = await axios.post(`http://localhost:5000/api/users/signup`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/signup`, {
         name,
         companyName,
         email,

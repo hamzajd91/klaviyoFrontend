@@ -7,6 +7,7 @@ import Loader from "../../reusable components/Loader";
 
 const ITEMS_PER_PAGE = 12;
 
+
 export default function CampaignsPage() {
   const [userId, setUserId] = useState(null);
   const [items, setItems] = useState([]);
@@ -24,9 +25,9 @@ export default function CampaignsPage() {
       console.log("User ID set:", storedUser);
 
       if (!storedUser?.klaviyo) {
-        alert("Please connect your Klaviyo account");
+        alert("fetching matrix key");
         axios
-          .post("http://localhost:5000/api/klaviyo/saveMatrixKey", {
+          .post(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/saveMatrixKey`, {
             userId: storedUser._id,
           })
           .then((res) => {
@@ -45,7 +46,7 @@ export default function CampaignsPage() {
     setLoading(true);
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/klaviyo/paginated",
+        `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/paginated`,
         {
           params: { userId, page: pageNum, limit: ITEMS_PER_PAGE },
         }
@@ -78,10 +79,10 @@ export default function CampaignsPage() {
     setLoading(true);
     try {
       await axios.post(
-        "http://localhost:5000/api/klaviyo/fetch-campaign-data",
+        `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetch-campaign-data`,
         { userId }
       );
-      await fetchPage(1); // refresh first page
+      await fetchPage(1); 
     } catch (err) {
       console.error(err);
     } finally {
@@ -101,6 +102,8 @@ export default function CampaignsPage() {
 };
 
 
+
+
   return (
     <>
       <Head>
@@ -108,6 +111,7 @@ export default function CampaignsPage() {
       </Head>
 
       <div className="d-flex">
+      
         {/* Sidebar */}
         <div className="sidebar">
           <h5 className="mb-4 fw-bold">TIG</h5>

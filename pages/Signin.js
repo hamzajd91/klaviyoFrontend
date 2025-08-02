@@ -32,7 +32,7 @@ const Signin = () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:5000/api/users/signin`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/signin`, {
         email,
         password,
       });
@@ -41,7 +41,6 @@ const Signin = () => {
       setLoading(false);
       console.log('Login successful:', response.data);
       router.push('/campaigns/getCampaigns');
-      // router.push(response.data.redirect);
     } catch (error) {
       setError('Invalid username or password');
       setLoading(false);

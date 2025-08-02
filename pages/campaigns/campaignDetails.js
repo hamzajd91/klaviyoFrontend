@@ -9,11 +9,12 @@ export default function CampaignDetails() {
 
   const [campaign, setCampaign] = useState(null);
   const [campaignMessage, setCampaignMessage] = useState(null);
+  const [template, setTemplate] = useState()
 
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:5000/api/klaviyo/campaign/${id}`)
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/campaign/${id}`)
         .then((res) => setCampaign(res.data))
         .catch((err) => console.error("Error fetching campaign:", err));
     }
@@ -23,11 +24,16 @@ export default function CampaignDetails() {
     if (campaign?.relationships?.["campaign-messages"]?.data?.[0]?.id) {
       const messageId = campaign.relationships["campaign-messages"].data[0].id;
 
+      console.log(messageId);
+
       axios
         .get(
-          `http://localhost:5000/api/klaviyo/fetchCampaignMessage/${messageId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchCampaignMessage/${messageId}`
         )
-        .then((res) => setCampaignMessage(res.data.data))
+        .then((res) => {
+          setCampaignMessage(res.data.data);
+          console.log(res.data.data.relationships.template.data.id);
+        })
         .catch((err) => console.error("Error fetching campaign message:", err));
     }
   }, [campaign]);
@@ -39,6 +45,29 @@ export default function CampaignDetails() {
       </div>
     );
   }
+
+const handleTemplate = () => {
+  const templateId = campaignMessage?.relationships?.template?.data?.id;
+
+  if (!templateId) return;
+
+  axios
+    .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchMessageTemplate/${templateId}`)
+    .then((res) => {
+      const html = res.data.data?.attributes?.html;
+      if (html) {
+        const newTab = window.open("", "_blank");
+        if (newTab) {
+          newTab.document.write(html);
+          newTab.document.close();
+        } else {
+          alert("Pop-up blocked. Please allow pop-ups for this site.");
+        }
+      }
+    })
+    .catch((err) => console.error("Error fetching campaign message template:", err));
+};
+
 
   const attributes = campaign.attributes || {};
   const message = campaignMessage?.attributes?.definition?.content || {};
@@ -108,6 +137,7 @@ export default function CampaignDetails() {
           marginTop: "20px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
         }}
+        onClick={handleTemplate}
       >
         HTML template
       </button>

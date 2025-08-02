@@ -15,7 +15,7 @@
     "bootstrap": "^5.3.3",
     "cheerio": "^1.0.0-rc.12",
     "dayjs": "^1.11.13",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.1",
     "mammoth": "^1.9.0",
     "next": "latest",
     "pdfjs-dist": "3.4.120",
