@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import Loader from "../../reusable components/Loader";
 
 const ITEMS_PER_PAGE = 12;
-
 
 export default function CampaignsPage() {
   const [userId, setUserId] = useState(null);
@@ -19,46 +18,62 @@ export default function CampaignsPage() {
 
   // Get userId once on mount
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userData"));
-    if (storedUser?._id) {
-      setUserId(storedUser._id);
-      console.log("User ID set:", storedUser);
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) {
+        const parsedUser = JSON.parse(storedData);
+        if (parsedUser?._id) {
+          setUserId(parsedUser._id);
+          // console.log("User ID set:", parsedUser);
 
-      if (!storedUser?.klaviyo) {
-        alert("fetching matrix key");
-        axios
-          .post(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/saveMatrixKey`, {
-            userId: storedUser._id,
-          })
-          .then((res) => {
-            console.log("matrix key saved:");
-          })
-          .catch((err) => {
-            console.error("Error fetching klaviyo data:", err);
-          });
+          if (!parsedUser?.klaviyo) {
+            axios
+              .post(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/saveMatrixKey`, {
+                userId: parsedUser._id,
+              })
+              .then(() => {
+                // console.log("Matrix key saved");
+              })
+              .catch((err) => {
+                console.error("Error saving matrix key:", err?.message || err);
+              });
+          }
+        } else {
+          console.warn("User ID not found in localStorage data");
+        }
+      } else {
+        console.warn("No userData found in localStorage");
       }
+    } catch (error) {
+      console.error("Error reading localStorage:", error);
     }
   }, []);
 
   // Fetch paginated data
   const fetchPage = async (pageNum = 1) => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn("Cannot fetch page — userId is missing");
+      return;
+    }
     setLoading(true);
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/paginated`,
-        {
-          params: { userId, page: pageNum, limit: ITEMS_PER_PAGE },
-        }
+        { params: { userId, page: pageNum, limit: ITEMS_PER_PAGE } }
       );
-      setItems(res.data.items || []);
-      setPageInfo({
-        page: res.data.page,
-        totalPages: res.data.totalPages,
-      });
-      setFetchedOnce(true);
+
+      if (res?.data) {
+        setItems(res.data.items || []);
+        setPageInfo({
+          page: res.data.page || 1,
+          totalPages: res.data.totalPages || 0,
+        });
+        setFetchedOnce(true);
+      } else {
+        console.warn("No data returned from campaigns API");
+      }
     } catch (err) {
-      console.error("Error fetching campaigns:", err);
+      console.error("Error fetching campaigns:", err?.message || err);
     } finally {
       setLoading(false);
     }
@@ -66,25 +81,24 @@ export default function CampaignsPage() {
 
   useEffect(() => {
     if (userId) {
-      fetchPage(1); // fetch first page initially
+      fetchPage(1);
     }
   }, [userId]);
 
-  // useEffect(() => {
-  //   console.log(items, "items");
-  // }, [items]);
-
   const handleFetchClick = async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn("Cannot fetch campaigns — userId is missing");
+      return;
+    }
     setLoading(true);
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetch-campaign-data`,
         { userId }
       );
-      await fetchPage(1); 
+      await fetchPage(1);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching campaign data:", err?.message || err);
     } finally {
       setLoading(false);
     }
@@ -95,14 +109,12 @@ export default function CampaignsPage() {
   };
 
   const handleCampaignClick = (campaign) => {
-
-  router.push(`/campaigns/campaignDetails?id=${campaign.id}`);
-
-
-};
-
-
-
+    if (!campaign?.id) {
+      console.warn("Campaign ID missing — cannot navigate to details");
+      return;
+    }
+    router.push(`/campaigns/campaignDetails?id=${campaign.id}&userId=${userId}`);
+  };
 
   return (
     <>
@@ -111,7 +123,6 @@ export default function CampaignsPage() {
       </Head>
 
       <div className="d-flex">
-      
         {/* Sidebar */}
         <div className="sidebar">
           <h5 className="mb-4 fw-bold">TIG</h5>
@@ -135,13 +146,15 @@ export default function CampaignsPage() {
             </div>
           </div>
           <div className="mt-5">
-            {/* <br /> */}
             <button
               className="p-3 btn btn-sm btn-outline-success mt-2"
               onClick={() => {
-                // setItems();
-                localStorage.removeItem("userData");
-                router.push(`/`);
+                try {
+                  localStorage.removeItem("userData");
+                  router.push(`/`);
+                } catch (err) {
+                  console.error("Error logging out:", err?.message || err);
+                }
               }}
             >
               Log out
@@ -203,25 +216,14 @@ export default function CampaignsPage() {
             </button>
           </div>
 
-          <div className="d-flex gap-2 flex-wrap mb-4">
-            <span className="metric-badge green">Impressions</span>
-            <span className="metric-badge blue">Clicks</span>
-            <span className="metric-badge yellow">CTR</span>
-            <button className="btn btn-outline-secondary btn-sm">
-              + Add metric
-            </button>
-          </div>
-
           {loading && (
             <div className="loaderContainer">
               <Loader />
             </div>
           )}
 
-          {/* {!loading && !fetchedOnce && ( */}
-          {!loading && (
+          {!loading && !fetchedOnce && (
             <div className="text-center my-5">
-              {/* <p>No campaigns found.</p> */}
               <button className="btn btn-primary" onClick={handleFetchClick}>
                 Fetch Campaigns
               </button>
@@ -239,9 +241,9 @@ export default function CampaignsPage() {
               <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                 {items.map((c) => (
                   <div
-                    key={c.id}
+                    key={c.id || Math.random()}
                     className="col"
-                     onClick={() => handleCampaignClick(c)}
+                    onClick={() => handleCampaignClick(c)}
                     style={{ cursor: "pointer" }}
                   >
                     <div className="ad-card">
@@ -249,14 +251,16 @@ export default function CampaignsPage() {
                         <img
                           src="https://placehold.co/300x400"
                           className="img-fluid"
-                          alt={c.attributes.name}
+                          alt={c.attributes?.name || "Campaign"}
                         />
-                        <span>{c.attributes.status}</span>
+                        <span>{c.attributes?.status || "Unknown"}</span>
                       </div>
                       <div className="p-2">
-                        <div className="card-title">{c.attributes.name}</div>
+                        <div className="card-title">
+                          {c.attributes?.name || "No Name"}
+                        </div>
                         <div className="ad-metrics">
-                          Status: {c.attributes.status}
+                          Status: {c.attributes?.status || "N/A"}
                         </div>
                       </div>
                     </div>
@@ -267,7 +271,7 @@ export default function CampaignsPage() {
                 <ReactPaginate
                   pageCount={pageInfo.totalPages}
                   onPageChange={handlePageClick}
-                  forcePage={pageInfo.page - 1}
+                  forcePage={(pageInfo.page || 1) - 1}
                   previousLabel="‹ Prev"
                   nextLabel="Next ›"
                   containerClassName="pagination"

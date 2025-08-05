@@ -5,7 +5,7 @@ import Loader from "../../reusable components/Loader";
 
 export default function CampaignDetails() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, userId } = router.query;
 
   const [campaign, setCampaign] = useState(null);
   const [campaignMessage, setCampaignMessage] = useState(null);
@@ -15,24 +15,32 @@ export default function CampaignDetails() {
     if (id) {
       axios
         .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/campaign/${id}`)
-        .then((res) => setCampaign(res.data))
+        .then((res) => {
+          setCampaign(res.data)
+          // console.log(res.data);
+          
+        })
         .catch((err) => console.error("Error fetching campaign:", err));
     }
   }, [id]);
 
   useEffect(() => {
-    if (campaign?.relationships?.["campaign-messages"]?.data?.[0]?.id) {
+      
+      
+    if (campaign) {
+      // console.log(campaign.relationships["campaign-messages"].data[0].id);
       const messageId = campaign.relationships["campaign-messages"].data[0].id;
 
-      console.log(messageId);
-
-      axios
+      // console.log(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchCampaignMessage/${messageId}/${userId}/`);
+      
+       axios
         .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchCampaignMessage/${messageId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchCampaignMessage/${messageId}/${userId}`
         )
         .then((res) => {
-          setCampaignMessage(res.data.data);
-          console.log(res.data.data.relationships.template.data.id);
+           setCampaignMessage(res.data.data);
+          // console.log(res.data);
+          
         })
         .catch((err) => console.error("Error fetching campaign message:", err));
     }
@@ -48,11 +56,11 @@ export default function CampaignDetails() {
 
 const handleTemplate = () => {
   const templateId = campaignMessage?.relationships?.template?.data?.id;
-
+  setTemplate(campaignMessage?.relationships?.template?.data?.id)
   if (!templateId) return;
 
   axios
-    .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchMessageTemplate/${templateId}`)
+    .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchMessageTemplate/${templateId}/${userId}`)
     .then((res) => {
       const html = res.data.data?.attributes?.html;
       if (html) {
@@ -124,7 +132,14 @@ const handleTemplate = () => {
         </div>
       )}
 
-      <button
+      {template === undefined && (
+        <div style={{ color: "red", marginTop: "20px" }}>
+          No HTML template available.
+        </div>
+      )}
+  {
+    template && (
+          <button
         style={{
           backgroundColor: "#0070f3",
           color: "#fff",
@@ -141,6 +156,8 @@ const handleTemplate = () => {
       >
         HTML template
       </button>
+    )
+  }
     </div>
   );
 }

@@ -55,7 +55,7 @@ const Signup = () => {
       setError('');
       setLoading(false);
       console.log('Signup successful:', response.data);
-      router.push('/campaigns/getCampaigns');
+      router.push('/campaigns/Dashboard');
       
       // router.push(response.data.redirect);
     } catch (error) {

@@ -40,7 +40,7 @@ const Signin = () => {
       setError('');
       setLoading(false);
       console.log('Login successful:', response.data);
-      router.push('/campaigns/getCampaigns');
+      router.push('/campaigns/Dashboard');
     } catch (error) {
       setError('Invalid username or password');
       setLoading(false);
