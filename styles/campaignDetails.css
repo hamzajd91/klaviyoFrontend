@@ -40,3 +40,74 @@
   font-size: 18px;
   color: #555;
 }
+
+
+
+/* ---------------------------------------- */
+
+.campaign-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f8f9fc;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.template-preview {
+  flex: 1 1 55%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  overflow: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.template-preview iframe {
+  width: 100%;
+  height: auto;
+  border: none;
+}
+
+.campaign-meta {
+  flex: 1 1 40%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.campaign-meta h2 {
+  font-size: 22px;
+  color: #2b6cb0;
+  margin-bottom: 15px;
+}
+
+.campaign-meta p {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.campaign-meta strong {
+  color: #1a202c;
+}
+
+.campaign-title {
+  width: 100%;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #1a202c;
+}
+
+.loading-text {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: #555;
+}
