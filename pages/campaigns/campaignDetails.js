@@ -18,6 +18,8 @@ export default function CampaignDetails() {
         .then((res) => {
           setCampaign(res.data);
           console.log("campaign", res.data);
+          console.log("campaign id", res.data.relationships?.["campaign-messages"]?.data?.[0]?.id);
+          
         })
         .catch((err) => console.error("Error fetching campaign:", err));
     }
@@ -27,6 +29,9 @@ export default function CampaignDetails() {
     if (campaign) {
       const messageId = campaign.relationships?.["campaign-messages"]?.data?.[0]?.id;
       if (!messageId || !userId) return;
+
+      console.log("user ID:", userId);
+      console.log(" messageId:", messageId);
 
       axios
         .get(
@@ -38,11 +43,19 @@ export default function CampaignDetails() {
           console.log( "campaign message", messageData);
 
           const templateId = messageData?.relationships?.template?.data?.id;
-          if (templateId) {
+          console.log("templateId", templateId);
+          
+          if (res.data?.data) {
+            console.log( " if statement");
+            console.log(res.data?.data);
+            
+            
             axios
               .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchMessageTemplate/${templateId}/${userId}`)
               .then((res) => {
-                setTemplateHTML(res.data?.data?.attributes?.html || null);
+                console.log("template response", res.data);
+                
+                // setTemplateHTML(res.data?.data?.attributes?.html || null);
               })
               .catch((err) => console.error("Error fetching campaign template:", err));
           }
@@ -50,6 +63,32 @@ export default function CampaignDetails() {
         .catch((err) => console.error("Error fetching campaign message:", err));
     }
   }, [campaign]);
+
+  const handleTemplate = () => {
+  const templateId = campaignMessage?.relationships?.template?.data?.id;
+  // setTemplate(campaignMessage?.relationships?.template?.data?.id)
+  console.log("templateId 22", templateId);
+
+  if (!templateId) return;
+
+  axios
+    .get(`${process.env.NEXT_PUBLIC_API_URL}/klaviyo/fetchMessageTemplate/${templateId}/${userId}`)
+    .then((res) => {
+      const html = res.data.data?.attributes?.html;
+      if (html) {
+        const newTab = window.open("", "_blank");
+        if (newTab) {
+          newTab.document.write(html);
+          newTab.document.close();
+        } else {
+          alert("Pop-up blocked. Please allow pop-ups for this site.");
+        }
+      }
+    })
+    .catch((err) => console.error("Error fetching campaign message template:", err));
+};
+
+
 
   if (!campaign || !campaignMessage) {
     return (
@@ -108,6 +147,25 @@ export default function CampaignDetails() {
         <p><strong>Channel:</strong> {sender.channel}</p>
         <p><strong>Scheduled Send:</strong> {sendTime ? new Date(sendTime).toLocaleString() : "N/A"}</p>
       </div>
+
+        <button
+    
+        style={{
+          backgroundColor: "#0070f3",
+          color: "#fff",
+          border: "none",
+          borderRadius: "4px",
+          padding: "10px 20px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontSize: "16px",
+          marginTop: "20px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        }}
+        onClick={handleTemplate}
+      >
+        HTML template
+      </button>
     </div>
   );
 }

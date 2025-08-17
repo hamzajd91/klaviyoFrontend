@@ -222,7 +222,8 @@ export default function CampaignsPage() {
             </div>
           )}
 
-          {!loading && !fetchedOnce && (
+          {!loading &&(
+          // {!loading && !fetchedOnce && (
             <div className="text-center my-5">
               <button className="btn btn-primary" onClick={handleFetchClick}>
                 Fetch Campaigns
